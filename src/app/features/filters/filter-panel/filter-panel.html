@@ -1,0 +1,51 @@
+<div class="filter-panel">
+  <section>
+    <h3>Continent</h3>
+    <mat-chip-listbox [value]="state.continentFilter()" (change)="onContinentChange($event)">
+      <mat-chip-option value="ALL">All</mat-chip-option>
+      @for (continent of continents; track continent.code) {
+        <mat-chip-option [value]="continent.code">{{ continent.label }}</mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </section>
+
+  <section>
+    <h3>Indicator</h3>
+    <mat-form-field appearance="outline">
+      <mat-label>Indicator</mat-label>
+      <mat-select [value]="state.activeIndicatorId()" (selectionChange)="onIndicatorChange($event)">
+        @for (indicator of state.indicators(); track indicator.id) {
+          <mat-option [value]="indicator.id">{{ indicator.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  <section>
+    <h3>Ranking</h3>
+    <mat-slide-toggle [checked]="rankingEnabled()" (change)="onRankingEnabledChange($event)">
+      Limit to top/bottom N
+    </mat-slide-toggle>
+
+    @if (rankingEnabled()) {
+      <div class="ranking-controls">
+        <mat-button-toggle-group [value]="rankingDirection()" (change)="onRankingDirectionChange($event)">
+          <mat-button-toggle value="top">Top</mat-button-toggle>
+          <mat-button-toggle value="bottom">Bottom</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Count</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            [value]="rankingCount()"
+            #countInput
+            (change)="onRankingCountChange(countInput.valueAsNumber)"
+          />
+        </mat-form-field>
+      </div>
+    }
+  </section>
+</div>

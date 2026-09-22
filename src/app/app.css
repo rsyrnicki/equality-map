@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-title {
+  margin-left: 8px;
+  font-size: 1.1rem;
+}
+
+main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}

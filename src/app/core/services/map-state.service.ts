@@ -1,0 +1,173 @@
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { scaleLinear } from 'd3-scale';
+import { ContinentCode } from '../models/continent.model';
+import { Country } from '../models/country.model';
+import { CountryDataService } from './country-data.service';
+
+export interface TopNFilter {
+  direction: 'top' | 'bottom';
+  n: number;
+}
+
+const NO_DATA_COLOR = '#e0e0e0';
+// Simple red -> green interpolation (hand-rolled rather than pulling in
+// d3-scale-chromatic) so "good" values read as green regardless of whether
+// the indicator's raw numbers go up or down for "better".
+const LOW_RGB: [number, number, number] = [211, 47, 47];
+const HIGH_RGB: [number, number, number] = [46, 125, 50];
+
+function interpolateColor(t: number): string {
+  const r = Math.round(LOW_RGB[0] + (HIGH_RGB[0] - LOW_RGB[0]) * t);
+  const g = Math.round(LOW_RGB[1] + (HIGH_RGB[1] - LOW_RGB[1]) * t);
+  const b = Math.round(LOW_RGB[2] + (HIGH_RGB[2] - LOW_RGB[2]) * t);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+/**
+ * Single shared source of app state, built from Angular signals instead of
+ * NgRx or a Subject-based store. `signal()` holds a piece of mutable state;
+ * `computed()` derives new values from other signals and re-evaluates
+ * automatically (and only) when an input it actually read last time changes.
+ *
+ * Components inject this service and read its signals/computed values
+ * directly in their templates — no @Input/@Output plumbing needed once state
+ * is shared this way.
+ */
+@Injectable({ providedIn: 'root' })
+export class MapStateService {
+  private readonly countryData = inject(CountryDataService);
+
+  // Bridge the service's Observables into signals once, at construction.
+  readonly countries = toSignal(this.countryData.getCountries(), { initialValue: [] as Country[] });
+  readonly indicators = toSignal(this.countryData.getIndicators(), { initialValue: [] });
+  private readonly allScores = toSignal(this.countryData.getAllScores(), { initialValue: [] });
+
+  // --- Writable state ---
+  readonly selectedIso3s = signal<ReadonlySet<string>>(new Set());
+  readonly activeIndicatorId = signal<string>('gini');
+  readonly continentFilter = signal<ContinentCode | 'ALL'>('ALL');
+  readonly topNFilter = signal<TopNFilter | null>(null);
+
+  // --- Derived state ---
+  readonly activeIndicator = computed(() => this.indicators().find((i) => i.id === this.activeIndicatorId()));
+
+  /** Value of the active indicator per country, recomputed only when the indicator or data changes. */
+  readonly scoreByIso3 = computed<ReadonlyMap<string, number>>(() => {
+    const indicatorId = this.activeIndicatorId();
+    const map = new Map<string, number>();
+    for (const score of this.allScores()) {
+      if (score.indicatorId === indicatorId) map.set(score.countryIso3, score.value);
+    }
+    return map;
+  });
+
+  private readonly scoreRange = computed<[number, number] | null>(() => {
+    const values = [...this.scoreByIso3().values()];
+    return values.length ? [Math.min(...values), Math.max(...values)] : null;
+  });
+
+  /** Choropleth color per country for the active indicator; countries with no score are omitted. */
+  readonly colorByIso3 = computed<ReadonlyMap<string, string>>(() => {
+    const range = this.scoreRange();
+    const result = new Map<string, string>();
+    if (!range) return result;
+    const [min, max] = range;
+    const higherIsBetter = this.activeIndicator()?.higherIsBetter ?? true;
+    const normalize = scaleLinear().domain([min, max]).range([0, 1]).clamp(true);
+    for (const [iso3, value] of this.scoreByIso3()) {
+      const t = normalize(value);
+      result.set(iso3, interpolateColor(higherIsBetter ? t : 1 - t));
+    }
+    return result;
+  });
+
+  /** Countries matching the continent + top-N filters (both default to "no filter"). */
+  readonly filteredCountries = computed(() => {
+    const continent = this.continentFilter();
+    const byContinent =
+      continent === 'ALL' ? this.countries() : this.countries().filter((c) => c.continent === continent);
+
+    const topN = this.topNFilter();
+    if (!topN) return byContinent;
+
+    const scores = this.scoreByIso3();
+    return [...byContinent]
+      .filter((c) => scores.has(c.iso3))
+      .sort((a, b) => {
+        const diff = scores.get(a.iso3)! - scores.get(b.iso3)!;
+        return topN.direction === 'top' ? -diff : diff;
+      })
+      .slice(0, topN.n);
+  });
+
+  /** Filtered countries that have a score for the active indicator, sorted best-to-worst. */
+  readonly rankedCountries = computed(() => {
+    const scores = this.scoreByIso3();
+    const higherIsBetter = this.activeIndicator()?.higherIsBetter ?? true;
+    return [...this.filteredCountries()]
+      .filter((c) => scores.has(c.iso3))
+      .sort((a, b) => {
+        const diff = scores.get(a.iso3)! - scores.get(b.iso3)!;
+        return higherIsBetter ? -diff : diff;
+      });
+  });
+
+  readonly selectedCountries = computed(() =>
+    this.filteredCountries().filter((c) => this.selectedIso3s().has(c.iso3)),
+  );
+
+  /** Selected countries in ranked order, each annotated with its rank among all ranked countries. */
+  readonly rankedSelection = computed(() => {
+    const ranked = this.rankedCountries();
+    const scores = this.scoreByIso3();
+    const selected = this.selectedIso3s();
+    return ranked
+      .map((country, index) => ({ country, rank: index + 1, score: scores.get(country.iso3) }))
+      .filter((entry) => selected.has(entry.country.iso3));
+  });
+
+  readonly totalSelectedPopulation = computed(() =>
+    this.selectedCountries().reduce((sum, c) => sum + c.population, 0),
+  );
+
+  readonly selectionScoreStats = computed(() => {
+    const scores = this.scoreByIso3();
+    const values = this.selectedCountries()
+      .map((c) => scores.get(c.iso3))
+      .filter((v): v is number => v != null);
+    if (values.length === 0) return null;
+    return {
+      average: values.reduce((a, b) => a + b, 0) / values.length,
+      min: Math.min(...values),
+      max: Math.max(...values),
+    };
+  });
+
+  colorFor(iso3: string): string {
+    return this.colorByIso3().get(iso3) ?? NO_DATA_COLOR;
+  }
+
+  isSelected(iso3: string): boolean {
+    return this.selectedIso3s().has(iso3);
+  }
+
+  toggleCountry(iso3: string): void {
+    const next = new Set(this.selectedIso3s());
+    if (next.has(iso3)) next.delete(iso3);
+    else next.add(iso3);
+    this.selectedIso3s.set(next);
+  }
+
+  setActiveIndicator(id: string): void {
+    this.activeIndicatorId.set(id);
+  }
+
+  setContinentFilter(continent: ContinentCode | 'ALL'): void {
+    this.continentFilter.set(continent);
+  }
+
+  setTopNFilter(filter: TopNFilter | null): void {
+    this.topNFilter.set(filter);
+  }
+}

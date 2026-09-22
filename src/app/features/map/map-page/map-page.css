@@ -1,0 +1,18 @@
+.map-page {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  height: 100%;
+}
+
+.map-area {
+  overflow: hidden;
+}
+
+.sidebar {
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

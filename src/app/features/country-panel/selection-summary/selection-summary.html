@@ -1,0 +1,51 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Selection</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (state.selectedCountries().length === 0) {
+      <p class="empty">Click countries on the map to select them.</p>
+    } @else {
+      <dl class="stats">
+        <div class="stat">
+          <dt>Countries selected</dt>
+          <dd>{{ state.selectedCountries().length }}</dd>
+        </div>
+        <div class="stat">
+          <dt>Total population</dt>
+          <dd>{{ state.totalSelectedPopulation() | number }}</dd>
+        </div>
+        @if (state.selectionScoreStats(); as stats) {
+          <div class="stat">
+            <dt>Average {{ state.activeIndicator()?.label }}</dt>
+            <dd>{{ stats.average | number: '1.0-1' }} {{ state.activeIndicator()?.unit }}</dd>
+          </div>
+          <div class="stat">
+            <dt>Range</dt>
+            <dd>{{ stats.min | number: '1.0-1' }} – {{ stats.max | number: '1.0-1' }}</dd>
+          </div>
+        }
+      </dl>
+
+      <mat-list>
+        @for (entry of state.rankedSelection(); track entry.country.iso3) {
+          <mat-list-item>
+            <span matListItemTitle>#{{ entry.rank }} {{ entry.country.name }}</span>
+            @if (entry.score !== undefined) {
+              <span matListItemLine>{{ entry.score | number: '1.0-1' }} {{ state.activeIndicator()?.unit }}</span>
+            }
+            <button
+              mat-icon-button
+              matListItemMeta
+              (click)="remove(entry.country.iso3)"
+              [attr.aria-label]="'Remove ' + entry.country.name + ' from selection'"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-list-item>
+        }
+      </mat-list>
+    }
+  </mat-card-content>
+</mat-card>

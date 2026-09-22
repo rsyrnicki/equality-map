@@ -1,0 +1,12 @@
+<svg class="world-map" viewBox="0 0 960 500" xmlns="http://www.w3.org/2000/svg">
+  @for (country of countries(); track country.iso3) {
+    <path
+      [attr.d]="country.path"
+      [style.fill]="colorFor(country)"
+      [class.selected]="isSelected(country)"
+      (click)="toggle(country)"
+    >
+      <title>{{ country.name }}</title>
+    </path>
+  }
+</svg>

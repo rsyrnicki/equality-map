@@ -1,0 +1,26 @@
+.empty {
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+}
+
+.stat dt {
+  color: rgba(0, 0, 0, 0.6);
+  grid-column: 1;
+}
+
+.stat dd {
+  grid-column: 2;
+  margin: 0;
+  font-weight: 500;
+}
+
+.stat {
+  display: contents;
+}
