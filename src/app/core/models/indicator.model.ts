@@ -12,6 +12,6 @@ export interface CountryScore {
   indicatorId: string;
   value: number;
   year: number;
-  /** 'mock' for now; will hold a real provenance string (e.g. 'World Bank') once Milestone H lands. */
+  /** Where this number came from, e.g. 'mock' or, for real data, 'World Bank'. */
   source: string;
 }

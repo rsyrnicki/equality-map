@@ -1,6 +1,8 @@
-// Hand-authored, illustrative mock data for a learning project — approximate
-// ballpark figures, not sourced citations. Milestone H swaps this for real
-// public API data (e.g. World Bank Open Data) behind the same service interface.
+// Made-up but realistic-looking numbers, typed in by hand for this learning
+// project. They're rough estimates, not real statistics — good enough to make
+// the map, filters, and rankings work while we're still building the app.
+// A later version of this app could replace this file with real numbers
+// fetched from a public API, without changing how the rest of the app uses it.
 import { CountryScore, IndicatorDefinition } from '../models/indicator.model';
 
 export const INDICATORS: IndicatorDefinition[] = [

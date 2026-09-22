@@ -11,12 +11,12 @@ export interface TopNFilter {
 }
 
 const NO_DATA_COLOR = '#e0e0e0';
-// Simple red -> green interpolation (hand-rolled rather than pulling in
-// d3-scale-chromatic) so "good" values read as green regardless of whether
-// the indicator's raw numbers go up or down for "better".
+// The two ends of our color scale: red for "bad", green for "good".
 const LOW_RGB: [number, number, number] = [211, 47, 47];
 const HIGH_RGB: [number, number, number] = [46, 125, 50];
 
+// Turns a number from 0 (bad) to 1 (good) into a color between red and green,
+// by blending the two RGB values above in that proportion.
 function interpolateColor(t: number): string {
   const r = Math.round(LOW_RGB[0] + (HIGH_RGB[0] - LOW_RGB[0]) * t);
   const g = Math.round(LOW_RGB[1] + (HIGH_RGB[1] - LOW_RGB[1]) * t);
@@ -25,14 +25,14 @@ function interpolateColor(t: number): string {
 }
 
 /**
- * Single shared source of app state, built from Angular signals instead of
- * NgRx or a Subject-based store. `signal()` holds a piece of mutable state;
- * `computed()` derives new values from other signals and re-evaluates
- * automatically (and only) when an input it actually read last time changes.
+ * Holds all the state the map page needs to share between components: which
+ * countries are selected, which indicator is active, which filters are on,
+ * and everything calculated from those (colors, rankings, totals).
  *
- * Components inject this service and read its signals/computed values
- * directly in their templates — no @Input/@Output plumbing needed once state
- * is shared this way.
+ * `signal()` below holds one piece of state that can change over time.
+ * `computed()` calculates a new value from other signals, and updates itself
+ * automatically whenever one of those signals changes — like a spreadsheet
+ * formula that recalculates when a cell it depends on changes.
  */
 @Injectable({ providedIn: 'root' })
 export class MapStateService {
@@ -54,6 +54,7 @@ export class MapStateService {
 
   /** Value of the active indicator per country, recomputed only when the indicator or data changes. */
   readonly scoreByIso3 = computed<ReadonlyMap<string, number>>(() => {
+    console.log('recomputing  scoreByIso3')
     const indicatorId = this.activeIndicatorId();
     const map = new Map<string, number>();
     for (const score of this.allScores()) {

@@ -28,9 +28,9 @@ const CONTINENT_CODE = {
   Antarctica: 'AN',
 };
 
-// A handful of countries where country-json's population/continent files use
-// a different display name than world-countries. Mapped by hand after
-// inspecting the ~10 near-misses left over from a plain name join.
+// A few countries are listed under a different name in country-json than in
+// world-countries (e.g. "Turkey" vs "Türkiye"). Without this, those countries
+// would be skipped below because their names wouldn't match across datasets.
 const NAME_OVERRIDES = {
   178: 'Congo', // Republic of the Congo
   180: 'The Democratic Republic of Congo',

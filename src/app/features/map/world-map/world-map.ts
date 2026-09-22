@@ -10,10 +10,9 @@ import { MapStateService } from '../../../core/services/map-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorldMap {
-  // Now that there's a shared state service, the map injects it directly
-  // instead of taking `countries` as an @Input and bubbling selection up
-  // through an @Output — there's no parent component in between that needs
-  // to know about map internals.
+  // Reads the app's shared state directly, instead of receiving data through
+  // an @Input. Any other component can inject the same service and see the
+  // same selection/filters/colors — there's only ever one copy of this state.
   protected readonly state = inject(MapStateService);
 
   protected readonly countries = this.state.filteredCountries;

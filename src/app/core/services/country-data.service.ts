@@ -12,18 +12,19 @@ import { CountryScore, IndicatorDefinition } from '../models/indicator.model';
 import worldAtlas from 'world-atlas/countries-110m.json';
 
 /**
- * The app's single data-access point for countries/indicators/scores.
+ * The single place the rest of the app goes to for countries/indicators/scores.
  *
- * Every method returns an Observable, and today they're all backed by `of()`
- * over static mock data. Later (Milestone H) the *implementations* swap to
- * `HttpClient` calls against a real API — callers won't need to change,
- * because the return types don't change.
+ * Every method returns an Observable, currently filled with static mock data
+ * via `of()`. If this were switched to real data from the internet, only the
+ * *inside* of these methods would change (`of(...)` becomes `this.http.get(...)`)
+ * — every component using this service would keep working exactly as it does now.
  */
 @Injectable({ providedIn: 'root' })
 export class CountryDataService {
-  // Computed once when the service is constructed (a singleton, since it's
-  // providedIn: 'root') rather than recomputed on every call or every change
-  // detection cycle — geometry projection is relatively expensive pure math.
+  // Built once, when the app first asks for this service (it's a singleton —
+  // see providedIn: 'root' above), not every time getCountries() is called.
+  // Turning raw map geometry into SVG paths for ~170 countries is real work,
+  // so we only want to do it a single time.
   private readonly countries: Country[] = buildCountryGeometry(worldAtlas as unknown as Topology, MOCK_COUNTRIES);
 
   getCountries(): Observable<Country[]> {
