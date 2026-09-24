@@ -42,9 +42,11 @@ access to clean water. You can:
 - Click multiple countries to select them, and see combined stats
   (total population, average score, etc.) for your selection
 
-The data behind it is currently made-up "mock" data (more on why in Lesson 7),
-but it's built so real data from a public API could replace it later without
-changing how the rest of the app works.
+The data behind it is real: yearly figures from the World Bank, the WHO and
+Our World in Data, plus one indicator (air pollution) that the app fetches
+live while you watch. The app started out with made-up "mock" data, and
+Lesson 7 explains how it was built so that switching to real data later
+(Lesson 14) wouldn't change how the rest of the app works.
 
 ## The tools we're using
 

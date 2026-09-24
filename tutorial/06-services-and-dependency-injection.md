@@ -53,14 +53,24 @@ Because it's `providedIn: 'root'`, every class that calls
 lets our whole app share one copy of the country data without passing it
 around manually.
 
+Services can inject other services, too. Here is every `inject()` in the
+app:
+
+![Diagram: WorldMap, FilterPanel and SelectionSummary each inject MapStateService; MapStateService injects CountryDataService and AirQualityService; both of those inject Angular's HttpClient. All of them live in the root injector, one instance each](./images/dependency-injection.svg)
+
+The **injector** is the part of Angular that creates these instances and
+keeps track of them. Note `HttpClient` at the top: it's a service that
+Angular itself provides (Lesson 14), and we get it with `inject()` like any
+other.
+
 ## Why this matters for testing too
 
 Because components ask for a service instead of creating one directly,
 tests can hand a component a *fake* version of that service instead of the
 real one — useful for testing UI in isolation from real data-fetching logic.
-We won't need to do that ourselves (our tests use the real, mock-backed
-service, which is already fast and predictable), but it's a big part of why
-DI is worth having.
+Lesson 15 does something similar: instead of faking our own service, the
+tests swap Angular's real HTTP backend for a testing one, so no test ever
+touches the network.
 
 ## New terms in this lesson
 
@@ -73,5 +83,7 @@ DI is worth having.
   service instances they ask for, instead of them creating their own.
 - **`inject(SomeService)`** — asks Angular's DI system for the shared
   instance of `SomeService`.
+- **Injector** — the part of Angular that creates service instances and
+  hands them out.
 
 Next: [Lesson 7 — Fetching data the Angular way: Observables](./07-observables.md)

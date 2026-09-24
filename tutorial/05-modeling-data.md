@@ -69,6 +69,9 @@ export interface IndicatorDefinition {
   unit: string;
   category: string;
   higherIsBetter: boolean;
+  source: string;
+  freshness: 'snapshot' | 'live';
+  colorScaleDomain?: [number, number];
 }
 
 export interface CountryScore {
@@ -87,6 +90,14 @@ and sorting — a lower Gini score is "better," but higher access-to-water is
 also "better"). A `CountryScore` is one actual number: this country, this
 indicator, this value.
 
+Three of those fields were added once the app switched to real data
+(Lesson 14): `source` (who publishes the numbers), `freshness` (another union
+type: is the data loaded from a file or fetched live?), and
+`colorScaleDomain`. That last one has a `?` after its name, which makes it an
+**optional property**: an indicator may have it or leave it out entirely,
+and TypeScript makes you check for `undefined` before using it. Its type,
+`[number, number]`, is a **tuple**: an array with exactly two numbers.
+
 ## New terms in this lesson
 
 - **Interface** — a description of an object's shape (its properties and
@@ -94,5 +105,8 @@ indicator, this value.
 - **Union type** — a type that must be one of a fixed set of specific values.
 - **`extends`** (on an interface) — build a new shape that includes
   everything from another shape, plus more.
+- **Optional property (`name?:`)** — a property an object may leave out.
+- **Tuple** — an array type with a fixed length and a type per position,
+  like `[number, number]`.
 
 Next: [Lesson 6 — Services and Dependency Injection](./06-services-and-dependency-injection.md)

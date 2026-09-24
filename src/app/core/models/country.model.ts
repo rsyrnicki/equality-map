@@ -18,3 +18,12 @@ export interface Country extends CountryMeta {
   /** Precomputed `d` attribute for an SVG `<path>`, in map projection coordinates. */
   path: string;
 }
+
+/** The point on the globe we ask a live API about for a whole country (usually its capital). */
+export interface CountryLocation {
+  iso3: string;
+  /** The capital's name, or 'geographic centre' when there's no single agreed capital to use. */
+  label: string;
+  latitude: number;
+  longitude: number;
+}

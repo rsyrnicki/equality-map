@@ -1,4 +1,4 @@
-# Lesson 16: What to learn next
+# Lesson 17: What to learn next
 
 You've now seen every major Angular concept used in this app, each attached
 to real, working code. Here's a recap of the concept map, and some ideas for
@@ -25,32 +25,40 @@ where to take the app (and your Angular knowledge) from here.
 - **Pipes** (Lesson 12) format data for display, right in the template.
 - **Change detection, `OnPush`, and zoneless** (Lesson 13) are how Angular
   decides when to actually update the screen.
-- **Testing** (Lesson 14) uses plain `describe`/`it`/`expect` for pure logic,
-  and `TestBed` for anything that needs Angular running.
-- **Docker** (Lesson 15) packages the built app so it can run anywhere,
+- **`HttpClient` and RxJS operators** (Lesson 14) fetch real data, both once
+  (a build-time snapshot) and repeatedly (a live API), with loading and
+  error states.
+- **Testing** (Lesson 15) uses plain `describe`/`it`/`expect` for pure logic,
+  `TestBed` for anything that needs Angular running, and
+  `HttpTestingController` to fake HTTP responses.
+- **Docker** (Lesson 16) packages the built app so it can run anywhere,
   independent of Angular itself.
 
 ## Things you could try adding
 
 Each of these is a good next exercise, roughly in order of difficulty:
 
-1. **More indicators or countries.** Add a new row to
-   `src/app/core/data/mock-scores.data.ts` and a new entry to `INDICATORS` —
-   it should show up in the dropdown and be usable immediately, with no
-   other code changes. This is a good way to confirm you understand how data
-   flows through `MapStateService`.
+1. **More indicators.** Add an entry to `INDICATORS` in
+   `scripts/fetch-indicator-data.mjs` (the World Bank alone has thousands:
+   try `SG.GEN.PARL.ZS`, women in parliament) and run `npm run fetch-data`.
+   It should show up in the dropdown with no Angular code changes. This is
+   a good way to confirm you understand how data flows from the snapshot
+   file through `MapStateService`.
 2. **A second page.** Add a route (Lesson 4) for a single country's detail
    view, with its own component, linked from the selection summary.
-3. **Real data.** Replace what's inside `CountryDataService`'s methods with
-   real `HttpClient` calls to a public API (the World Bank's Open Data API
-   is a reasonable place to look), while keeping the method signatures
-   (`Observable<Country[]>`, etc.) the same. If you've understood Lesson 7
-   and Lesson 10, this should be a contained change — a good test of whether
-   the "same interface, different implementation" idea actually clicked.
-4. **Loading and error states.** Once you're fetching real data, what does
-   the app show while waiting, or if the request fails? Angular's `resource()`
-   API (newer than everything covered here) is built specifically for this.
-5. **URL-based sharing.** Make the current filters/selection reflected in the
+3. **A second live indicator.** Open-Meteo also provides other air-quality
+   measures (such as `european_aqi` or `ozone`), and weather. Adding one is a
+   good test of Lesson 14: which parts of `AirQualityService` could be
+   shared, and does `LiveStatus` work for it unchanged?
+4. **Loading and error states for the snapshot.** The live indicator shows
+   when it's loading or has failed, but the snapshot doesn't: if
+   `indicators.json` fails to load, the map just stays grey. Try rewriting
+   `CountryDataService` with `httpResource()` (mentioned at the end of
+   Lesson 14), which gives you `isLoading()` and `error()` signals for free.
+5. **Be a better API citizen.** Pause the live polling while the browser tab
+   is hidden (look up the `visibilitychange` event and RxJS's `fromEvent`),
+   so a forgotten background tab doesn't use up Open-Meteo's free quota.
+6. **URL-based sharing.** Make the current filters/selection reflected in the
    URL (using route query parameters), so a link can be shared that opens
    the app with a specific view already set up.
 

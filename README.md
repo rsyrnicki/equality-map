@@ -12,6 +12,16 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Data
+
+Most indicators come from a snapshot file, `public/data/indicators.json`, which is committed to git. To refresh it from the World Bank, WHO and Our World in Data APIs, run:
+
+```bash
+npm run fetch-data
+```
+
+The Docker build runs this step too, and falls back to the committed snapshot if the APIs can't be reached. The "Air pollution right now" indicator is fetched live from [Open-Meteo](https://open-meteo.com/) in the browser while it's selected. See `tutorial/14-talking-to-apis.md` for the full explanation.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:

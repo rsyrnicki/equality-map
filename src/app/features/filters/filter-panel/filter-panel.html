@@ -15,10 +15,28 @@
       <mat-label>Indicator</mat-label>
       <mat-select [value]="state.activeIndicatorId()" (selectionChange)="onIndicatorChange($event)">
         @for (indicator of state.indicators(); track indicator.id) {
-          <mat-option [value]="indicator.id">{{ indicator.label }}</mat-option>
+          <mat-option [value]="indicator.id">
+            {{ indicator.label }}
+            @if (indicator.freshness === 'live') {
+              <span class="live-tag">LIVE</span>
+            }
+          </mat-option>
         }
       </mat-select>
     </mat-form-field>
+
+    @if (state.activeIndicator(); as indicator) {
+      @if (indicator.freshness === 'live') {
+        <app-live-status [state]="state.liveState()" (refresh)="state.refreshLive()" />
+      } @else {
+        <p class="source">
+          Source: {{ indicator.source }}
+          @if (state.activeYearRange(); as years) {
+            · most recent year per country ({{ years[0] }}–{{ years[1] }})
+          }
+        </p>
+      }
+    }
   </section>
 
   <section>

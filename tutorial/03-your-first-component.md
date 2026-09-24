@@ -90,6 +90,16 @@ contains more components, and so on. This is the **component tree** — the
 same idea as the DOM tree, but at the level of your own building blocks
 instead of raw HTML tags.
 
+Here is the whole tree for Equality Map, as it is by the end of this series:
+
+![Diagram of the component tree: App renders MatToolbar and RouterOutlet; RouterOutlet renders MapPage for the empty route; MapPage renders WorldMap, FilterPanel and SelectionSummary; FilterPanel renders LiveStatus](./images/component-tree.svg)
+
+The dashed boxes aren't ours: they come from libraries (Angular Material and
+the Angular Router). They appear in templates and nest into the tree exactly
+like our own components do. The orange line is special: `RouterOutlet`
+doesn't name `MapPage` in its template. The Router decides at runtime which
+component goes there, based on the URL (next lesson).
+
 ## New terms in this lesson
 
 - **Component** — a self-contained class + template + styles that renders

@@ -28,9 +28,10 @@ app was actually built. Read them in order the first time through.
 11. [Building forms and filters with Angular Material](./11-angular-material.md)
 12. [Formatting data with pipes](./12-pipes.md)
 13. [How Angular knows when to update the screen](./13-change-detection.md)
-14. [Testing your app](./14-testing.md)
-15. [Packaging the app with Docker](./15-docker.md)
-16. [What to learn next](./16-whats-next.md)
+14. [Talking to real APIs](./14-talking-to-apis.md)
+15. [Testing your app](./15-testing.md)
+16. [Packaging the app with Docker](./16-docker.md)
+17. [What to learn next](./17-whats-next.md)
 
 ## A note on the code
 
