@@ -1,4 +1,4 @@
-# Lesson 15: Packaging the app with Docker
+# Lesson 16: Packaging the app with Docker
 
 This lesson is less about Angular specifically, and more about how to hand
 a finished Angular app to a server so other people can actually visit it.
@@ -32,6 +32,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+RUN npm run fetch-data || echo "fetch-data failed; building with the committed snapshot"
 RUN npm run build
 
 # --- Serve stage: static files behind nginx ---
@@ -47,6 +48,8 @@ This is called a **multi-stage build** — it has two `FROM` lines, meaning two
 separate images get built, and only the *result* of the first gets carried
 into the second.
 
+![Diagram of the two Docker stages: stage 1, from node:24-alpine, runs COPY package files, npm ci, COPY, npm run fetch-data and npm run build; only the built files are copied into stage 2, from nginx:alpine, next to nginx.conf](./images/docker-stages.svg)
+
 - **Stage 1 (`build`)**: starts from an image that already has Node.js
   installed (`node:24-alpine` — "alpine" means a stripped-down, small Linux
   base). It copies in just the dependency files first and runs `npm ci`
@@ -55,8 +58,8 @@ into the second.
   the source code is deliberate: Docker skips re-running a step if its
   inputs haven't changed, so if you only change your own code (not your
   dependencies), this `npm ci` step is skipped on your next build, saving a
-  lot of time. Then it copies the rest of the source code and runs
-  `npm run build`.
+  lot of time. Then it copies the rest of the source code, refreshes the
+  indicator data (see below), and runs `npm run build`.
 - **Stage 2**: starts fresh from `nginx:alpine` — **nginx** is a widely used,
   very lightweight web server, good at exactly one job: serving files fast.
   `COPY --from=build` reaches back into the first stage and grabs *only* the
@@ -64,6 +67,20 @@ into the second.
   tooling, source code, or `node_modules` from stage 1 end up in the final
   image at all. This keeps the final image small and doesn't ship your
   source code or build tools to production.
+
+## Fresh data on every build
+
+`RUN npm run fetch-data` runs the build-time data script from Lesson 14, so
+each image ships with the latest World Bank, WHO and Our World in Data
+numbers. The `|| echo "..."` part matters: in a shell, `a || b` means "run
+`b` only if `a` failed". If those APIs can't be reached during the build,
+the step prints a warning instead of failing, and the build continues with
+the `public/data/indicators.json` already committed to git. An outage at the
+World Bank should never stop you from deploying.
+
+(For this to work, the script has to be inside the image. `.dockerignore`,
+which lists files Docker should *not* copy in with `COPY . .`, used to
+exclude the `scripts/` folder, so that line was removed.)
 
 ## Why a custom nginx config?
 
@@ -123,9 +140,11 @@ background (`-d`, for "detached"). The app is then available at
 - **Dockerfile** — instructions for building an image.
 - **Multi-stage build** — a Dockerfile with multiple `FROM` stages, where
   only specific output from earlier stages carries into the final image.
+- **`.dockerignore`** — a list of files and folders that Docker leaves out
+  when copying the project into an image.
 - **nginx** — a lightweight, widely used web server, here used just to serve
   our built static files.
 - **Docker Compose** — a tool for describing and running one or more
   containers from a single configuration file.
 
-Next: [Lesson 16 — What to learn next](./16-whats-next.md)
+Next: [Lesson 17 — What to learn next](./17-whats-next.md)

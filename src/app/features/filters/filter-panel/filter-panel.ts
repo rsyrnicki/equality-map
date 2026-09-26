@@ -7,6 +7,7 @@ import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CONTINENT_LABEL, ContinentCode } from '../../../core/models/continent.model';
 import { MapStateService } from '../../../core/services/map-state.service';
+import { LiveStatus } from '../live-status/live-status';
 
 const CONTINENTS = (Object.keys(CONTINENT_LABEL) as ContinentCode[]).map((code) => ({
   code,
@@ -22,6 +23,7 @@ const CONTINENTS = (Object.keys(CONTINENT_LABEL) as ContinentCode[]).map((code) 
     MatFormFieldModule,
     MatInputModule,
     MatSlideToggleModule,
+    LiveStatus,
   ],
   templateUrl: './filter-panel.html',
   styleUrl: './filter-panel.css',

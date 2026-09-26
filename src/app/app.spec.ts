@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 
@@ -5,6 +7,9 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      // The component (via MapStateService) fetches data with HttpClient. The
+      // testing backend records requests instead of sending them over the network.
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
   });
 

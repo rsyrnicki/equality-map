@@ -13,10 +13,12 @@ getCountries(): Observable<Country[]> {
 Why not just `return this.countries;`? Because real data usually doesn't
 arrive instantly — it comes from a network request, which takes time and can
 fail. Angular's built-in tool for fetching data over the network,
-`HttpClient`, always returns an **Observable**, not the data itself. We're
-using `Observable` here too, even though our data is currently just sitting
-in memory, so that swapping in real network calls later doesn't change
-anything about how the rest of the app uses this service.
+`HttpClient`, always returns an **Observable**, not the data itself. We use
+`Observable` here too, even though the countries are just sitting in memory,
+so that every method on the service looks the same to the rest of the app.
+That paid off later: when indicators and scores switched from mock data to
+real network requests (Lesson 14), none of the components using this
+service had to change.
 
 ## What is an Observable?
 
@@ -33,6 +35,13 @@ is different from a regular value, and also different from a JavaScript
 
 Observables come from a library called **RxJS**, which Angular uses
 throughout (for HTTP requests, forms, routing events, and more).
+
+It helps to picture each one on a timeline:
+
+![Diagram comparing values over time: a plain value is there immediately; a Promise delivers one value later and finishes; of(countries) delivers one value right away and finishes; http.get delivers one response when it arrives; timer(0, 30 min) delivers a new value every 30 minutes, forever](./images/observables-over-time.svg)
+
+The last two rows appear in Lesson 14: `http.get()` for fetching data, and
+`timer()` for fetching it again every 30 minutes.
 
 ## `of()`
 

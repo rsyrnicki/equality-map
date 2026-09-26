@@ -29,6 +29,13 @@ Pipes can also take arguments:
 point, and between 0 and 1 digits after it — so `63` stays `63`, and
 `63.456` becomes `63.5`.
 
+The live-data status line from Lesson 14 uses another built-in pipe,
+`date`, to show a `Date` object as a short, local time like `11:00 PM`:
+
+```html
+Live · measured at {{ state().measuredAt | date: 'shortTime' }}
+```
+
 ## Pipes need to be imported too
 
 Just like Material components (Lesson 11), pipes used in a standalone

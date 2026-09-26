@@ -1,8 +1,10 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { scaleLinear } from 'd3-scale';
+import { EMPTY, Subject, switchMap } from 'rxjs';
 import { ContinentCode } from '../models/continent.model';
 import { Country } from '../models/country.model';
+import { AIR_QUALITY_INDICATOR, AirQualityService, INITIAL_LIVE_STATE } from './air-quality.service';
 import { CountryDataService } from './country-data.service';
 
 export interface TopNFilter {
@@ -37,11 +39,13 @@ function interpolateColor(t: number): string {
 @Injectable({ providedIn: 'root' })
 export class MapStateService {
   private readonly countryData = inject(CountryDataService);
+  private readonly airQuality = inject(AirQualityService);
 
   // Bridge the service's Observables into signals once, at construction.
+  // Until the snapshot file has loaded, these hold their `initialValue`.
   readonly countries = toSignal(this.countryData.getCountries(), { initialValue: [] as Country[] });
-  readonly indicators = toSignal(this.countryData.getIndicators(), { initialValue: [] });
-  private readonly allScores = toSignal(this.countryData.getAllScores(), { initialValue: [] });
+  private readonly snapshotIndicators = toSignal(this.countryData.getIndicators(), { initialValue: [] });
+  private readonly snapshotScores = toSignal(this.countryData.getAllScores(), { initialValue: [] });
 
   // --- Writable state ---
   readonly selectedIso3s = signal<ReadonlySet<string>>(new Set());
@@ -49,7 +53,37 @@ export class MapStateService {
   readonly continentFilter = signal<ContinentCode | 'ALL'>('ALL');
   readonly topNFilter = signal<TopNFilter | null>(null);
 
+  // --- Live data ---
+  /** Emits whenever the user asks for fresh live data (see `refreshLive()`). */
+  private readonly liveRefresh$ = new Subject<void>();
+
+  /**
+   * The live air-quality data, fetched only while that indicator is selected.
+   *
+   * `toObservable()` is `toSignal()` in reverse: it turns a signal into an
+   * Observable that emits each time the signal changes. `switchMap` then swaps
+   * in a different inner Observable for every indicator id: the live data
+   * stream for the air-quality indicator, and `EMPTY` (an Observable that
+   * never emits anything) for all others. Switching away unsubscribes from
+   * the live stream, which stops its timer and cancels any request in flight.
+   */
+  readonly liveState = toSignal(
+    toObservable(this.activeIndicatorId).pipe(
+      switchMap((indicatorId) =>
+        indicatorId === AIR_QUALITY_INDICATOR.id
+          ? this.countryData
+              .getLocations()
+              .pipe(switchMap((locations) => this.airQuality.watch(locations, this.liveRefresh$)))
+          : EMPTY,
+      ),
+    ),
+    { initialValue: INITIAL_LIVE_STATE },
+  );
+
   // --- Derived state ---
+  readonly indicators = computed(() => [...this.snapshotIndicators(), AIR_QUALITY_INDICATOR]);
+  private readonly allScores = computed(() => [...this.snapshotScores(), ...this.liveState().scores]);
+
   readonly activeIndicator = computed(() => this.indicators().find((i) => i.id === this.activeIndicatorId()));
 
   /** Value of the active indicator per country, recomputed only when the indicator or data changes. */
@@ -63,6 +97,15 @@ export class MapStateService {
     return map;
   });
 
+  /** Oldest and newest year among the active indicator's scores: not every country reports every year. */
+  readonly activeYearRange = computed<[number, number] | null>(() => {
+    const indicatorId = this.activeIndicatorId();
+    const years = this.allScores()
+      .filter((score) => score.indicatorId === indicatorId)
+      .map((score) => score.year);
+    return years.length ? [Math.min(...years), Math.max(...years)] : null;
+  });
+
   private readonly scoreRange = computed<[number, number] | null>(() => {
     const values = [...this.scoreByIso3().values()];
     return values.length ? [Math.min(...values), Math.max(...values)] : null;
@@ -70,7 +113,7 @@ export class MapStateService {
 
   /** Choropleth color per country for the active indicator; countries with no score are omitted. */
   readonly colorByIso3 = computed<ReadonlyMap<string, string>>(() => {
-    const range = this.scoreRange();
+    const range = this.activeIndicator()?.colorScaleDomain ?? this.scoreRange();
     const result = new Map<string, string>();
     if (!range) return result;
     const [min, max] = range;
@@ -170,5 +213,9 @@ export class MapStateService {
 
   setTopNFilter(filter: TopNFilter | null): void {
     this.topNFilter.set(filter);
+  }
+
+  refreshLive(): void {
+    this.liveRefresh$.next();
   }
 }

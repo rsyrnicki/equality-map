@@ -25,7 +25,9 @@ Angular gives you two main tools for this:
    service directly. Since services registered with `providedIn: 'root'`
    are singletons, every component sees the exact same data.
 
-This app uses the second approach: `MapStateService`
+![Diagram comparing the two approaches: on the left, WorldMap, FilterPanel and SelectionSummary each inject MapStateService; on the right, FilterPanel passes data down to its child LiveStatus with [state] and listens for events coming up with (refresh)](./images/sharing-state.svg)
+
+This app mostly uses the second approach: `MapStateService`
 (`src/app/core/services/map-state.service.ts`) holds all of the shared state,
 and `WorldMap`, `FilterPanel`, and `SelectionSummary` each inject it directly:
 
@@ -54,6 +56,33 @@ There's no need to copy `totalSelectedPopulation` into a separate property
 on `SelectionSummary` first — the template calls straight through to the
 signal on the injected service.
 
+## When `input()` and `output()` are the better fit
+
+`LiveStatus` (added in Lesson 14) is a small component that only ever
+appears inside `FilterPanel`. It uses the first approach instead:
+
+```ts
+// live-status.ts
+readonly state = input.required<LiveState>();
+readonly refresh = output<void>();
+```
+
+```html
+<!-- filter-panel.html -->
+<app-live-status [state]="state.liveState()" (refresh)="state.refreshLive()" />
+```
+
+`input.required<LiveState>()` declares a property the parent *must* bind with
+`[state]="..."`, and inside `LiveStatus` it's read like any signal:
+`state()`. `output<void>()` declares an event the parent can listen to with
+`(refresh)="..."`, and `LiveStatus` fires it with `this.refresh.emit()`.
+
+Why not inject `MapStateService` here too? Because this way `LiveStatus`
+knows nothing about the rest of the app. It shows whatever `LiveState` it's
+given, and says "refresh was clicked" without knowing what refreshing
+involves. That makes it reusable (another live indicator could use it
+as-is), and easy to test: Lesson 15's test just sets the input directly.
+
 ## Bridging Observables into this shared state
 
 `MapStateService` also needs the actual country/indicator/score data, which
@@ -69,9 +98,9 @@ readonly countries = toSignal(this.countryData.getCountries(), { initialValue: [
 `toSignal()` subscribes to the Observable once and keeps a signal updated
 with its latest value. `initialValue` is what the signal holds *before* the
 Observable has emitted anything yet — important for real network calls,
-which take time; less critical for our current mock data, which resolves
-instantly, but the code is written the same way either way (again, so that
-swapping in real data later doesn't require rewriting this).
+which take time. Indicators and scores are loaded over HTTP (Lesson 14), so
+for a moment after the app starts they really are `[]`, and the map is
+grey until the data arrives.
 
 This is the seam between Lesson 7's world (Observables, for anything
 potentially asynchronous) and Lesson 9's world (signals, for reactive UI
@@ -85,5 +114,7 @@ consistently, as ordinary signals.
   write.
 - **`toSignal()`** — converts an RxJS Observable into a signal that always
   holds its latest emitted value.
+- **`input()` / `output()`** — declare data a parent component passes in,
+  and events a component sends back out to its parent.
 
 Next: [Lesson 11 — Building forms and filters with Angular Material](./11-angular-material.md)

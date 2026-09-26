@@ -1,0 +1,40 @@
+<div class="live-status" [class.error]="state().status === 'error'">
+  <div class="status-line">
+    <span class="live-dot" aria-hidden="true"></span>
+    <span class="text">
+      @switch (state().status) {
+        @case ('loading') {
+          Fetching live readings…
+        }
+        @case ('ready') {
+          <span [title]="'Last checked at ' + (state().fetchedAt | date: 'shortTime')">
+            Live · measured at {{ state().measuredAt | date: 'shortTime' }}
+          </span>
+        }
+        @case ('error') {
+          {{ state().error }}
+          @if (state().fetchedAt) {
+            <br />Showing readings from {{ state().measuredAt | date: 'shortTime' }}.
+          }
+        }
+      }
+    </span>
+    <button
+      mat-icon-button
+      (click)="refresh.emit()"
+      [disabled]="state().status === 'loading'"
+      aria-label="Refresh live data"
+    >
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  @if (state().status === 'loading') {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  <p class="attribution">
+    PM2.5 at each capital city, from the Copernicus CAMS model via
+    <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0).
+  </p>
+</div>

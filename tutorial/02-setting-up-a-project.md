@@ -58,7 +58,7 @@ npm run build     # same as: ng build
 This produces an **optimized** version of the app — minified code, only the
 CSS you actually use, etc. — written to a `dist/` folder as plain HTML/CSS/JS
 files. This is what you'd actually deploy; we'll do exactly that with Docker
-in Lesson 15. The dev server (`npm start`) is for working on the app; the
+in Lesson 16. The dev server (`npm start`) is for working on the app; the
 build (`npm run build`) is for shipping it.
 
 ## A couple of setup choices worth knowing about

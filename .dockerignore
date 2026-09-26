@@ -4,5 +4,4 @@ dist
 .git
 .vscode
 .nvmrc
-scripts
 *.md

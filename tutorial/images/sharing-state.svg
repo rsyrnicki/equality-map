@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" width="960" height="380" role="img" aria-label="Two ways for components to share data">
+<title>Two ways for components to share data</title>
+<defs><marker id="arrow-757575" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#757575"/></marker><marker id="arrow-1e88e5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1e88e5"/></marker><marker id="arrow-ef6c00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ef6c00"/></marker></defs>
+<rect x="0.5" y="0.5" width="959" height="379" rx="12" fill="#ffffff" stroke="#e0e0e0"/>
+<text x="30.0" y="36.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start" fill="#212121">Two ways to connect components</text>
+<rect x="30.0" y="60.0" width="470.0" height="300.0" rx="12" fill="#fafafa" stroke="#e0e0e0" stroke-width="1.5"/>
+<text x="50.0" y="88.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#212121">1. A shared service</text>
+<text x="50.0" y="108.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#616161">for components that are not parent and child</text>
+<rect x="155.0" y="143.0" width="220.0" height="44.0" rx="8" fill="#e8f5e9" stroke="#43a047" stroke-width="1.5"/>
+<text x="265.0" y="170.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#212121">MapStateService</text>
+<rect x="40.0" y="278.0" width="150.0" height="44.0" rx="8" fill="#e3f2fd" stroke="#1e88e5" stroke-width="1.5"/>
+<text x="115.0" y="305.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#212121">WorldMap</text>
+<rect x="200.0" y="278.0" width="130.0" height="44.0" rx="8" fill="#e3f2fd" stroke="#1e88e5" stroke-width="1.5"/>
+<text x="265.0" y="305.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#212121">FilterPanel</text>
+<rect x="340.0" y="278.0" width="150.0" height="44.0" rx="8" fill="#e3f2fd" stroke="#1e88e5" stroke-width="1.5"/>
+<text x="415.0" y="305.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" text-anchor="middle" fill="#212121">SelectionSummary</text>
+<line x1="139.4" y1="278.0" x2="239.1" y2="188.3" stroke="#757575" stroke-width="1.5" marker-end="url(#arrow-757575)"/>
+<line x1="265.0" y1="278.0" x2="265.0" y2="189.0" stroke="#757575" stroke-width="1.5" marker-end="url(#arrow-757575)"/>
+<line x1="390.6" y1="278.0" x2="290.9" y2="188.3" stroke="#757575" stroke-width="1.5" marker-end="url(#arrow-757575)"/>
+<text x="265.0" y="347.0" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11.5" font-weight="normal" text-anchor="middle" fill="#616161">each one calls inject(MapStateService)</text>
+<rect x="520.0" y="60.0" width="410.0" height="300.0" rx="12" fill="#fafafa" stroke="#e0e0e0" stroke-width="1.5"/>
+<text x="540.0" y="88.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="start" fill="#212121">2. input() and output()</text>
+<text x="540.0" y="108.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#616161">for a parent and the child in its template</text>
+<rect x="540.0" y="130.0" width="370.0" height="210.0" rx="10" fill="#e3f2fd" stroke="#1e88e5" stroke-width="1.5"/>
+<text x="560.0" y="154.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="600" text-anchor="start" fill="#212121">FilterPanel  (parent)</text>
+<rect x="625.0" y="266.0" width="200.0" height="48.0" rx="8" fill="#e3f2fd" stroke="#1e88e5" stroke-width="1.5"/>
+<text x="725.0" y="287.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#212121">LiveStatus</text>
+<text x="725.0" y="304.0" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11.5" font-weight="normal" text-anchor="middle" fill="#616161">(child)</text>
+<line x1="690.0" y1="170.0" x2="690.0" y2="262.0" stroke="#1e88e5" stroke-width="1.5" marker-end="url(#arrow-1e88e5)"/>
+<text x="682.0" y="200.0" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="12" font-weight="normal" text-anchor="end" fill="#1565c0">[state]=</text>
+<text x="682.0" y="216.0" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11" font-weight="normal" text-anchor="end" fill="#1565c0">&quot;state.liveState()&quot;</text>
+<text x="682.0" y="236.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" text-anchor="end" fill="#616161" font-style="italic">data goes down</text>
+<line x1="760.0" y1="264.0" x2="760.0" y2="172.0" stroke="#ef6c00" stroke-width="1.5" marker-end="url(#arrow-ef6c00)"/>
+<text x="768.0" y="200.0" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="12" font-weight="normal" text-anchor="start" fill="#ef6c00">(refresh)=</text>
+<text x="768.0" y="216.0" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11" font-weight="normal" text-anchor="start" fill="#ef6c00">&quot;state.refreshLive()&quot;</text>
+<text x="768.0" y="236.0" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" text-anchor="start" fill="#616161" font-style="italic">events go up</text>
+</svg>

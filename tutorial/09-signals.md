@@ -77,6 +77,11 @@ You can see this whole chain in `map-state.service.ts`. Each step only knows
 about the signals directly below it — `colorByIso3` doesn't know or care
 *why* `activeIndicatorId` changed, just that it did.
 
+Drawn as a graph, with the part that re-runs when you click a country
+highlighted:
+
+![Diagram of the signal graph: activeIndicatorId and allScores feed scoreByIso3, which feeds colorByIso3 and the WorldMap template; continentFilter and topNFilter feed filteredCountries; selectedIso3s feeds selectedCountries, rankedSelection and totalSelectedPopulation, which feed the SelectionSummary template. Those last nodes are highlighted as the ones that re-run when a country is clicked](./images/signal-graph.svg)
+
 ## Why not just recalculate everything on every change?
 
 You could — that's roughly what happens in very simple apps, and for a small
